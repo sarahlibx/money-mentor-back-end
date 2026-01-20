@@ -8,7 +8,8 @@ const categorySchema = new mongoose.Schema(
     },
     type: {
       type: String,
-      enum: ['income', 'expense'],
+      // capitalized enum for consistency & to prevent bugs
+      enum: ['Income', 'Expense'],
       required: true,
     },
 

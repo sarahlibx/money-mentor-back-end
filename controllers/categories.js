@@ -14,11 +14,12 @@ router.get('/', verifyToken, async (req, res) => {
 });
 router.post('/', verifyToken, async (req, res)=> { 
      try {
-    const category = await Category.create({});
+    // changing the empty create object to req.body for testing in postman 
+    const category = await Category.create(req.body);
     res.status(201).json(category);
   } catch (err) {
     res.status(500).json({err:err.message});
   }
-})
+});
 
 module.exports = router;

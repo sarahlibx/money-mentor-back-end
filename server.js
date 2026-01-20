@@ -29,8 +29,6 @@ app.use('/auth', authRouter);
 app.use('/users', usersRouter);
 app.use('/transactions', transactionsRoutes);
 app.use('/categories', categoriesRoutes);
-// app.use('/summary', summaryRoutes); we don't need this one
-
 
 //server
 app.listen(3000, () => {
