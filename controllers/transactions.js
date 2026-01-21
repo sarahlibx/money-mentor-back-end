@@ -51,4 +51,36 @@ router.post("/", verifyToken, async (req, res) => {
   }
 });
 
+// PUT /transactions/:id 
+router.put("/:id", verifyToken, async (req, res) => {
+  try {
+    // Find transaction
+    const transaction = await Transaction.findById(req.params.id);
+
+    if (!transaction) {
+      return res.status(404).json({ err: "Transaction not found" });
+    }
+
+    // Check permissions
+    if (!transaction.userId.equals(req.user._id)) {
+      return res.status(403).json({ err: "You're not allowed to do that!" });
+    }
+
+    // Prevent changing ownership
+    delete req.body.userId;
+
+    // Update transaction
+    const updatedTransaction = await Transaction.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true }
+    );
+
+    res.status(200).json(updatedTransaction);
+  } catch (err) {
+    res.status(500).json({ err: err.message });
+  }
+});
+
+
 module.exports = router;
