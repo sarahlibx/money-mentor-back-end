@@ -17,6 +17,21 @@ router.get("/", verifyToken, async (req, res) => {
   }
 });
 
+// GET /recent - get list of recent transactions for dashboard.jsx -- this goes before parameter routes due to specific "recent" in the route
+router.get('/recent', verifyToken, async (req, res) => { 
+  try {
+    const recentTransactions = await Transaction.find({ userId: req.user._id })
+    .populate('categoryId')
+    .sort({ date: -1 })
+    .limit(5)
+
+    res.status(200).json(recentTransactions);
+    
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // GET /transactions/:id - show one (owner-only)
 router.get("/:id", verifyToken, async (req, res) => {
   try {
@@ -36,7 +51,6 @@ router.get("/:id", verifyToken, async (req, res) => {
     res.status(500).json({ err: err.message });
   }
 });
-
 
 // POST /transactions - create (assign userId from token)
 router.post("/", verifyToken, async (req, res) => {
