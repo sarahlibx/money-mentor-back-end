@@ -82,5 +82,27 @@ router.put("/:id", verifyToken, async (req, res) => {
   }
 });
 
+// DELETE /transactions/:id 
+router.delete("/:id", verifyToken, async (req, res) => {
+  try {
+    // Find transaction
+    const transaction = await Transaction.findById(req.params.id);
+
+    if (!transaction) {
+      return res.status(404).json({ err: "Transaction not found" });
+    }
+
+    // Check permissions
+    if (!transaction.userId.equals(req.user._id)) {
+      return res.status(403).json({ err: "You're not allowed to do that!" });
+    }
+
+    const deletedTransaction = await Transaction.findByIdAndDelete(req.params.id);
+    res.status(200).json(deletedTransaction);
+  } catch (err) {
+    res.status(500).json({ err: err.message });
+  }
+});
+
 
 module.exports = router;
