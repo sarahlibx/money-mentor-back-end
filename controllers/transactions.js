@@ -2,6 +2,9 @@ const express = require("express");
 const verifyToken = require("../middleware/verify-token.js");
 const Transaction = require("../models/transaction.js");
 const router = express.Router();
+const levels =require("../utils/levels.js")
+const User = require("../models/user");
+
 
 // GET /transactions - list only current user's transactions
 router.get("/", verifyToken, async (req, res) => {
@@ -75,7 +78,7 @@ router.post("/", verifyToken, async (req, res) => {
     req.body.userId = req.user._id;
 
     const transaction = await Transaction.create(req.body);
-
+//update user points grab the user model and update the points field on the user model
     res.status(201).json(transaction);
   } catch (err) {
     res.status(500).json({ err: err.message });
