@@ -61,11 +61,11 @@ ${recentTransactions
   .join("\n")}
 
 Then:
-- Give ONE short motivational message
+- Give short motivational message
 - Be encouraging
 - Mention the category if relevant
 - Give practical financial advice
-- Keep it under 2 sentences total
+- Keep it under 3 sentences total
 `;
 
     const response = await genAI.models.generateContent({
@@ -81,9 +81,10 @@ Then:
     const aiResponse = response;
     console.log("AI RESPONSE:", aiResponse?.candidates[0].content.parts[0]);
     const mentorMessage =
-      response?.response?.candidates?.[0]?.content?.parts?.[0]?.text ||
+      response?.response?.candidates?.[0]?.content?.parts[0]?.text ||
       "Keep going — small steps add up.";
       // response.response.candidates[0].content.parts[0].text
+      // . .part-an array. text-object .-you look at an object 
 
 
     // const mentorMessage =

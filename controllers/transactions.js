@@ -11,7 +11,7 @@ router.get("/", verifyToken, async (req, res) => {
     const transactions = await Transaction.find({ userId: req.user._id }).sort({
       date: -1,
       createdAt: -1,
-    });
+    }).populate("categoryId");
 
     res.status(200).json(transactions);
   } catch (err) {
@@ -89,11 +89,16 @@ router.post("/", verifyToken, async (req, res) => {
 
     // update user points. $inc add this number to existing
     if (pointsToAdd > 0) {
-      await User.findByIdAndUpdate(req.user._id, {
+      const user = await User.findByIdAndUpdate(req.user._id, {
         $inc: { points: pointsToAdd },
-      });
+       
+        
+      },
+       {new: true}
+    );
+      await user.save();
     }
-
+    transaction._doc.categoryId = transaction.categoryId
     res.status(201).json(transaction);
   } catch (err) {
     res.status(500).json({ err: err.message });

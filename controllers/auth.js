@@ -26,7 +26,7 @@ router.post('/sign-up', async (req, res) => {
         })
 
         // Construct the payload
-        const payload = { username: user.username, _id: user._id};
+        const payload = { username: user.username, _id: user._id, points:0};
 
         // CCreate the token, attaching the payload
         const token = jwt.sign({ payload }, process.env.JWT_SECRET);
@@ -58,7 +58,7 @@ router.post('/sign-in', async (req, res) => {
         }
 
         // Construct the payload 
-        const payload = { username: user.username, _id: user._id }
+        const payload = { username: user.username, _id: user._id, points:user.points }
 
         // Create the token, attaching the payload
         const token = jwt.sign( { payload }, process.env.JWT_SECRET);
