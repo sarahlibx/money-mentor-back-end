@@ -31,7 +31,7 @@ app.use('/auth', authRouter);
 app.use('/users', usersRouter);
 app.use('/transactions', transactionsRoutes);
 app.use('/categories', categoriesRoutes);
-app.use('/mentor', mentorRoutes);
+app.use('/mentors', mentorRoutes);
 
 //server
 app.listen(3000, () => {

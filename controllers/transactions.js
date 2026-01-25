@@ -87,7 +87,7 @@ router.post("/", verifyToken, async (req, res) => {
     let pointsToAdd = 0;
 // transaction amount x 10 points
     if (transaction.type === "Income") {
-      pointsToAdd = transaction.amount * 10;
+      pointsToAdd = transaction.amount * 3;
     }
 
     // update user points. $inc add this number to existing

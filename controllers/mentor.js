@@ -12,32 +12,17 @@ const ai = new GoogleGenAI({
   apiKey: process.env.GEMINI_API_KEY,
 });
 
-router.post("/ai-test", verifyToken, async (req, res) => {
-  try {
-    const response = await ai.models.generateContent({
-      model: "gemini-1.5-flash-preview",
-      contents: "Explain how AI works in a few words",
-    });
-
-    res.json({
-      result: response.text,
-    });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
 //reads points from req.user calculates level
 router.get("/", verifyToken, async (req, res) => {
+  const user = req.user;
+  const { level, name } = getLevelFromPoints(user.points); //computes level gives lvl name
+  let mentorMessage = " Keep going - you are getting closer to your goal! ";
+  let recentTransactions;
   try {
-    const user = req.user;
-
-    const recentTransactions = await Transaction.find({ userId: user._id })
+    recentTransactions = await Transaction.find({ userId: user._id })
       .populate("categoryId")
       .sort({ createdAt: -1 })
       .limit(5);
-
-    const { level, name } = getLevelFromPoints(user.points); //computes level gives lvl name
 
     // AI Studio / preview client
     const genAI = new GoogleGenAI({
@@ -78,33 +63,23 @@ Then:
         },
       ],
     });
-    const aiResponse = response;
-    console.log("AI RESPONSE:", aiResponse?.candidates[0].content.parts[0]);
-    const mentorMessage =
-      response?.response?.candidates?.[0]?.content?.parts[0]?.text ||
-      "Keep going — small steps add up.";
-      // response.response.candidates[0].content.parts[0].text
-      // . .part-an array. text-object .-you look at an object 
 
+    // console.log("AI RESPONSE:", aiResponse?.candidates[0].content.parts[0]);
 
-    // const mentorMessage =
-    //   response?.response?.candidates?.[0]?.content?.parts?.[0]?.text ??
-    //   "Keep going — small steps add up."; dot notation
+    mentorMessage =
+      response?.candidates[0]?.content?.parts[0]?.text ?? mentorMessage;
 
-    res.json({
-      level,
-      levelName: name,
-      points: user.points,
-      mentorMessage,
-      recentTransactions,
-    });
+    console.log("MESSAGE", response);
   } catch (err) {
     console.error("MENTOR ERROR:", err);
-    res.status(500).json({
-      err: "Failed to load mentor insight",
-      details: err.message,
-    });
   }
+  res.json({
+    level,
+    levelName: name,
+    points: user.points,
+    mentorMessage,
+    recentTransactions,
+  });
 });
 
 module.exports = router;
