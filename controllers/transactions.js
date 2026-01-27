@@ -9,11 +9,12 @@ const User = require("../models/user");
 router.get("/", verifyToken, async (req, res) => {
   try {
     const transactions = await Transaction.find({ userId: req.user._id })
-    .populate('categoryId')
-    .sort({
-      date: -1,
-      createdAt: -1,
-    }).populate("categoryId");
+      .populate("categoryId")
+      .sort({
+        date: -1,
+        createdAt: -1,
+      })
+      .populate("categoryId");
 
     res.status(200).json(transactions);
   } catch (err) {
@@ -58,8 +59,9 @@ router.get("/monthly-summary", verifyToken, async (req, res) => {
 // GET /transactions/:id - show one (owner-only)
 router.get("/:id", verifyToken, async (req, res) => {
   try {
-    const transaction = await Transaction.findById(req.params.id)
-    .populate('categoryId');
+    const transaction = await Transaction.findById(req.params.id).populate(
+      "categoryId",
+    );
 
     if (!transaction) {
       return res.status(404).json({ err: "Transaction not found" });
@@ -81,28 +83,31 @@ router.post("/", verifyToken, async (req, res) => {
     req.body.userId = req.user._id;
     //Saves the transaction (income or expense) to MongoDB
     const transaction = await Transaction.create(req.body);
-    //update user points grab the user model and update the points field on the user model
 
-    // counter for calculating points
+    const amount = Number(transaction.amount);
+
     let pointsToAdd = 0;
-// transaction amount x 10 points
+
     if (transaction.type === "Income") {
-      pointsToAdd = transaction.amount * 2;
+      pointsToAdd = Math.floor(transaction.amount * 0.9);
     }
-
+    if (transaction.type === "Expense") {
+      pointsToAdd = Math.floor(transaction.amount * (-0.8));
+      transaction.amount = req.body.amount * -1;
+      await transaction.save();
+    }
+    console.log(pointsToAdd);
     // update user points. $inc add this number to existing
-    if (pointsToAdd > 0) {
-      const user = await User.findByIdAndUpdate(req.user._id, {
-        $inc: { points: pointsToAdd },
-       
-        
-      },
-       {new: true}
-    );
-      await user.save();
+    if (pointsToAdd !== 0) {
+      await User.findByIdAndUpdate(
+        req.user._id,
+        { $inc: { points: pointsToAdd } },
+        { new: true },
+      );
     }
-    const populatedTransaction = await transaction.populate('categoryId');
-
+    await transaction.save();
+    console.log(transaction);
+    const populatedTransaction = await transaction.populate("categoryId");
     res.status(201).json(populatedTransaction);
   } catch (err) {
     res.status(500).json({ err: err.message });
